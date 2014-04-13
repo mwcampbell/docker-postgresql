@@ -8,3 +8,7 @@ make install DESTDIR=$RUNTIME_ROOT
 rm -rf $RUNTIME_ROOT/include
 rm -rf $RUNTIME_ROOT/lib/*.a
 rm -rf $RUNTIME_ROOT/pkgconfig
+
+mkdir -p $RUNTIME_ROOT/etc
+cp $SRC/etc/*.conf $RUNTIME_ROOT/etc
+cp $SRC/run $RUNTIME_ROOT/bin

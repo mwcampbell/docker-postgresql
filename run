@@ -1,0 +1,29 @@
+#!/bin/sh
+set -e
+
+POSTGRESQL_USER=${POSTGRESQL_USER:-"docker"}
+POSTGRESQL_PASS=${POSTGRESQL_PASS:-"docker"}
+POSTGRESQL_DB=${POSTGRESQL_DB:-"docker"}
+POSTGRESQL_TEMPLATE=${POSTGRESQL_TEMPLATE:-"DEFAULT"}
+
+POSTGRESQL_BIN=/bin/postgres
+POSTGRESQL_CONFIG_FILE=/etc/postgresql.conf
+POSTGRESQL_DATA=/data/db
+
+POSTGRESQL_SINGLE="chpst -u postgres $POSTGRESQL_BIN --single --config-file=$POSTGRESQL_CONFIG_FILE"
+
+if [ ! -d $POSTGRESQL_DATA ]; then
+    mkdir -p $POSTGRESQL_DATA
+    chown -R postgres:postgres $POSTGRESQL_DATA
+    chmod a+x /data
+    chpst -u postgres initdb -D $POSTGRESQL_DATA
+fi
+
+echo "CREATE USER $POSTGRESQL_USER WITH SUPERUSER;" | $POSTGRESQL_SINGLE > /dev/null
+echo "ALTER USER $POSTGRESQL_USER WITH PASSWORD '$POSTGRESQL_PASS';" | $POSTGRESQL_SINGLE > /dev/null
+echo "CREATE DATABASE $POSTGRESQL_DB OWNER $POSTGRESQL_USER TEMPLATE $POSTGRESQL_TEMPLATE;" | $POSTGRESQL_SINGLE > /dev/null
+
+mkdir -p /run/postgresql
+chown -R postgres:postgres /run/postgresql
+
+exec chpst -u postgres $POSTGRESQL_BIN --config-file=$POSTGRESQL_CONFIG_FILE

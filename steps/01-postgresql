@@ -1,0 +1,10 @@
+cp -a $DEPS/postgresql .
+cd postgresql
+
+./configure --prefix= --without-readline --without-zlib
+make #$jobs
+make install DESTDIR=$RUNTIME_ROOT
+
+rm -rf $RUNTIME_ROOT/include
+rm -rf $RUNTIME_ROOT/lib/*.a
+rm -rf $RUNTIME_ROOT/pkgconfig
